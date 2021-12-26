@@ -12,7 +12,7 @@ const server = jsonServer.create()
 server.use(bodyParser.urlencoded({extended: true}))
 server.use(bodyParser.json())
 server.use(jsonServer.defaults());
-let userdb = JSON.parse(fs.readFileSync('./usuarios.json', 'UTF-8'))
+let userdb = JSON.parse(fs.readFileSync('./db/usuarios.json', 'UTF-8'))
 
 function createToken(payload){
   return jwt.sign(payload, SECRET_KEY, {expiresIn})
@@ -41,7 +41,7 @@ server.post('/auth/register', (req,res) => {
     return
   }
 
-  fs.readFile("./usuarios.json", (err,data) =>{
+  fs.readFile("./db/usuarios.json", (err,data) =>{
     if (err) {
       const status = 401
       const message = err
@@ -55,7 +55,7 @@ server.post('/auth/register', (req,res) => {
 
     data.usuarios.push({id: last_item_id + 1, email, senha, nome});
 
-    fs.writeFile("./usuarios.json", JSON.stringify(data), (err, result) => {
+    fs.writeFile("./db/usuarios.json", JSON.stringify(data), (err, result) => {
       if (err) {
         const status = 401
         const message = err
