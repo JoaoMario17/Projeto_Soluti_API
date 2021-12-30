@@ -60,7 +60,7 @@ server.post('/auth/login', (req, res) => {
 
   const {email, senha} = req.body;
 
-  if (authentication({email, senha}) === false) {
+  if (!authentication({email, senha})) {
     const status = 401
     const message = 'E-mail ou senha incorretos!'
     console.log('E-mail ou senha incorretos!')
@@ -92,12 +92,15 @@ function emailAlreadyInUse({email}){
 }
 
 function authentication({email,senha}){
-  return (userdb.usuarios.findIndex(user => {
+  var index = userdb.usuarios.findIndex(user => {
     if(user.email === email && user.senha === senha) {
       return true
     }
     return false
-  }) !== 1)
+  })
+
+  if(index === -1) return false
+  else return true
 }
 
 function authenticateToken(req,res,next) {
