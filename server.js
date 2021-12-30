@@ -63,13 +63,13 @@ server.post('/auth/login', (req, res) => {
   if (authentication({email, senha}) === false) {
     const status = 401
     const message = 'E-mail ou senha incorretos!'
+    console.log('E-mail ou senha incorretos!')
     res.status(status).json({status, message})
     return
   }
 
   const access_token = createToken(email)
   let user = { ...userdb.usuarios.find(user => user.email === email && user.senha === senha) }
-  delete user.senha
 
   console.log("Access Token:" + access_token);
   console.log("User:" + user);
@@ -92,8 +92,14 @@ function emailAlreadyInUse({email}){
 }
 
 function authentication({email,senha}){
-  return (userdb.usuarios.findIndex(user => user.email === email && user.senha == senha) !== -1)
+  return (userdb.usuarios.findIndex(user => {
+    if(user.email === email && user.senha === senha) {
+      return true
+    }
+    return
+  }) !== -1)
 }
+
 
 function authenticateToken(req,res,next) {
   const authHeader = req.headers['authorization']
