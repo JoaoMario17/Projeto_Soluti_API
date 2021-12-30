@@ -96,10 +96,9 @@ function authentication({email,senha}){
     if(user.email === email && user.senha === senha) {
       return true
     }
-    return
-  }) !== -1)
+    return false
+  }) !== 1)
 }
-
 
 function authenticateToken(req,res,next) {
   const authHeader = req.headers['authorization']
