@@ -79,14 +79,21 @@ server.post('/auth/login', (req, res) => {
 
 server.get('/userdata',authenticateToken,(req,res) => {
   const data = userdb.usuarios.filter(user => user.email == req.email)
-
+ 
   let respobj = {
-    id: data[0].id,
-    email: data[0].email,
-    nome: data[0].nome
+    usuario: {
+      id: data[0].id,
+      email: data[0].email,
+      nome: data[0].nome,
+      favpokemons: data[0].favpokemons
+    }
   }
   
   res.json(respobj)
+})
+
+server.put('/favpokemon/add',authenticateToken,(req,res) => {
+  console.log(req.email)
 })
 
 function createToken(payload){
@@ -99,7 +106,6 @@ function emailAlreadyInUse({email}){
 
 function authentication({email,senha}){
   var index = userdb.usuarios.findIndex(user => {
-    console.log(user.senha)
     if(user.email === email && user.senha === senha) {
       return true
     }
