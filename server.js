@@ -16,6 +16,7 @@ let userdb = JSON.parse(fs.readFileSync('./db/usuarios.json', 'UTF-8'))
 server.post('/auth/register', (req,res) => {
 
   const {email, senha, nome} = req.body;
+  var favpokemons = []
 
   if(emailAlreadyInUse({email}) === true) {
     const status = 401;
@@ -36,7 +37,7 @@ server.post('/auth/register', (req,res) => {
 
     var last_item_id = data.usuarios.length > 0 ? data.usuarios[data.usuarios.length-1].id : 0;
 
-    data.usuarios.push({id: last_item_id + 1, email, senha, nome});
+    data.usuarios.push({id: last_item_id + 1, email, senha, nome, favpokemons});
 
     fs.writeFile("./db/usuarios.json", JSON.stringify(data), (err, result) => {
       if (err) {
@@ -93,7 +94,67 @@ server.get('/userdata',authenticateToken,(req,res) => {
 })
 
 server.put('/favpokemon/add',authenticateToken,(req,res) => {
-  console.log(req.email)
+  console.log('uai')
+  fs.readFile("./db/usuarios.json", (err,data) =>{
+    if (err) {
+      const status = 401
+      const message = err
+      res.status(status).json({status, message})
+      return
+    };
+
+    var data = JSON.parse(data.toString());
+
+    data.usuarios.find(user => user.email === req.email).favpokemons.push(req.body.id)
+
+    fs.writeFile("./db/usuarios.json", JSON.stringify(data), (err, result) => {
+      if (err) {
+        const status = 401
+        const message = err
+        res.status(status).json({status, message})
+        return
+      }
+
+      console.log("Adding favorite pokemon with ID: " + req.body.id)
+    });
+
+    userdb = data
+  })
+
+  res.status(200).json("Pokemon Adicionado aos favoritos")
+})
+
+server.put('/favpokemon/remove',authenticateToken,(req,res) => {
+
+  fs.readFile("./db/usuarios.json", (err,data) =>{
+    if (err) {
+      const status = 401
+      const message = err
+      res.status(status).json({status, message})
+      return
+    };
+
+    var data = JSON.parse(data.toString());
+
+    const index = data.usuarios.find(user => user.email === req.email).favpokemons.indexOf(req.body.id)
+
+    data.usuarios.find(user => user.email === req.email).favpokemons.splice(index,1)
+    
+    fs.writeFile("./db/usuarios.json", JSON.stringify(data), (err, result) => {
+      if (err) {
+        const status = 401
+        const message = err
+        res.status(status).json({status, message})
+        return
+      }
+
+      console.log("Removing favorite pokemon with ID: " + req.body.id)
+    });
+
+    userdb = data
+  })
+
+  res.status(200).json("Pokemon Removido dos Favoritos")
 })
 
 function createToken(payload){
